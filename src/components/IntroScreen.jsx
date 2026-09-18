@@ -3,74 +3,111 @@ import { sound } from './SoundController';
 import { Lock, Unlock } from 'lucide-react';
 
 export default function IntroScreen({ onComplete }) {
-  const [progress, setProgress] = useState(0);
-  const [statusText, setStatusText] = useState('INITIALIZING BLAST VAULT...');
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [gateOpen, setGateOpen] = useState(false);
+
+  // Direct DOM refs to eliminate React re-render overhead while numbers load
+  const progressTextRef = useRef(null);
+  const circleProgressRef = useRef(null);
+  const statusTextRef = useRef(null);
+  const bottomStatusRef = useRef(null);
   const hasTriggeredRef = useRef(false);
 
   useEffect(() => {
-    // Smooth cinematic progression 0% -> 100%
-    const logs = [
-      { at: 20, text: 'SYNCHRONIZING HYDRAULIC CYLINDERS...' },
-      { at: 45, text: 'CHARGING CHEVRON CONDUITS...' },
-      { at: 70, text: 'AURA FLUX CONVERGENCE...' },
-      { at: 90, text: 'HYDRAULIC PRESSURE AT 100%...' },
-      { at: 100, text: 'MAXIMUM AURA // VAULT UNLOCKED' },
-    ];
+    // Ultra-smooth RAF loop using performance.now()
+    // Zero React re-renders = 100% immune to lag or stutter!
+    let start = null;
+    const duration = 2300; // 2.3 seconds smooth cinematic load
+    let rafId = null;
 
-    let current = 0;
-    const interval = setInterval(() => {
-      current += 1;
-      setProgress(current);
+    const tick = (timestamp) => {
+      if (!start) start = timestamp;
+      const elapsed = timestamp - start;
+      const raw = Math.min(elapsed / duration, 1);
 
-      const found = logs.find((l) => l.at === current);
-      if (found) {
-        setStatusText(found.text);
+      // Smooth cubic-out easing for natural cinematic deceleration
+      const progress = 1 - Math.pow(1 - raw, 2.2);
+      const pct = Math.floor(progress * 100);
+
+      // 1. Direct text update (Zero React lag)
+      if (progressTextRef.current) {
+        progressTextRef.current.innerText = `${pct}%`;
       }
 
-      if (current >= 100) {
-        clearInterval(interval);
+      // 2. Direct SVG dashoffset update
+      if (circleProgressRef.current) {
+        const offset = 276.46 - (276.46 * progress);
+        circleProgressRef.current.style.strokeDashoffset = `${offset}`;
+      }
+
+      // 3. Status text update at key milestones
+      if (statusTextRef.current) {
+        if (pct < 25) {
+          statusTextRef.current.innerText = 'INITIALIZING BLAST VAULT...';
+        } else if (pct < 55) {
+          statusTextRef.current.innerText = 'CHARGING CHEVRON CONDUITS...';
+        } else if (pct < 85) {
+          statusTextRef.current.innerText = 'SYNCHRONIZING SOVEREIGN CORE...';
+        } else if (pct < 100) {
+          statusTextRef.current.innerText = 'MAXIMUM AURA PRESSURE...';
+        } else {
+          statusTextRef.current.innerText = 'AURA FLUX REACHED';
+        }
+      }
+
+      if (raw < 1) {
+        rafId = requestAnimationFrame(tick);
+      } else {
+        // 100% REACHED!
         setIsUnlocked(true);
+        if (bottomStatusRef.current) {
+          bottomStatusRef.current.innerText = 'DISENGAGING BLAST SEALS...';
+        }
 
-        // HOLLYWOOD CINEMATIC AUTO-OPEN:
-        // Brief 0.4s pause of anticipation at 100%, then gates slowly part!
+        // Hollywood cinematic auto-open after 350ms pause of anticipation
         setTimeout(() => {
-          triggerSlowHollywoodGate();
-        }, 450);
+          triggerHollywoodGateOpen();
+        }, 350);
       }
-    }, 28);
+    };
 
-    return () => clearInterval(interval);
+    rafId = requestAnimationFrame(tick);
+    return () => {
+      if (rafId) cancelAnimationFrame(rafId);
+    };
   }, []);
 
-  const triggerSlowHollywoodGate = () => {
+  const triggerHollywoodGateOpen = () => {
     if (hasTriggeredRef.current) return;
     hasTriggeredRef.current = true;
 
+    // 1. Notify Sovereign 3D Entity in HeroCanvas to start forward camera glide & shockwave!
+    window.dispatchEvent(new CustomEvent('gate:opening'));
+
+    // 2. Play 3.8s Hollywood cinematic seismic rumble + brass swell
     sound.init();
     sound.playGateOpen();
     setGateOpen(true);
 
-    // Hollywood slow opening: doors take 4.0s to part and aura to fully form
+    // 3. Keep gate moving slowly and aura forming over 4.2s, then complete
     setTimeout(() => {
       if (onComplete) onComplete();
     }, 4200);
   };
 
-  // Allow user to click anywhere to start opening immediately
-  const handleUserClick = () => {
+  const handleScreenClick = () => {
     if (!hasTriggeredRef.current) {
-      setProgress(100);
+      if (progressTextRef.current) progressTextRef.current.innerText = '100%';
+      if (circleProgressRef.current) circleProgressRef.current.style.strokeDashoffset = '0';
       setIsUnlocked(true);
-      triggerSlowHollywoodGate();
+      triggerHollywoodGateOpen();
     }
   };
 
   return (
     <div
-      onClick={handleUserClick}
-      className={`fixed inset-0 z-[999999] bg-[#050608] overflow-hidden select-none cursor-pointer transition-opacity duration-1000 ${
+      onClick={handleScreenClick}
+      className={`fixed inset-0 z-[999999] overflow-hidden select-none cursor-pointer transition-opacity duration-1000 ${
         gateOpen ? 'pointer-events-none' : ''
       }`}
       style={{ perspective: '1600px' }}
@@ -107,38 +144,41 @@ export default function IntroScreen({ onComplete }) {
 
       {/* ========================================================
           LEFT BLAST GATE (SLIDES OPEN SLOWLY TO THE LEFT)
+          Semi-transparent dark smoked titanium glass revealing 3D entity behind!
           ======================================================== */}
       <div
-        className="absolute top-0 left-0 bottom-0 w-1/2 bg-[#06070a] shadow-[40px_0_100px_rgba(0,0,0,0.95)] z-20 overflow-hidden"
+        className="absolute top-0 left-0 bottom-0 w-1/2 bg-[#06070a]/92 backdrop-blur-md shadow-[40px_0_100px_rgba(0,0,0,0.95)] z-20 overflow-hidden"
         style={{
-          transform: gateOpen ? 'translateX(-102%) rotateY(-6deg)' : 'translateX(0%) rotateY(0deg)',
+          transform: gateOpen ? 'translateX(-104%) rotateY(-6deg)' : 'translateX(0%) rotateY(0deg)',
           transformOrigin: 'left center',
           transition: 'transform 3800ms cubic-bezier(0.22, 1, 0.36, 1)',
         }}
       >
-        {/* Diamond Carbon Plating Grid Background (Exact match to screenshot) */}
+        {/* Diamond Carbon Plating Grid Background */}
         <div className="absolute inset-0 bg-[linear-gradient(135deg,#0a0d14_25%,transparent_25%),linear-gradient(225deg,#0a0d14_25%,transparent_25%),linear-gradient(45deg,#0a0d14_25%,transparent_25%),linear-gradient(315deg,#0a0d14_25%,#050608_25%)] bg-[size:48px_48px] opacity-45 pointer-events-none" />
         <div className="absolute inset-0 bg-radial-gradient from-transparent via-[#06070a]/60 to-[#020204] pointer-events-none" />
       </div>
 
       {/* ========================================================
           RIGHT BLAST GATE (SLIDES OPEN SLOWLY TO THE RIGHT)
+          Semi-transparent dark smoked titanium glass revealing 3D entity behind!
           ======================================================== */}
       <div
-        className="absolute top-0 right-0 bottom-0 w-1/2 bg-[#06070a] shadow-[-40px_0_100px_rgba(0,0,0,0.95)] z-20 overflow-hidden"
+        className="absolute top-0 right-0 bottom-0 w-1/2 bg-[#06070a]/92 backdrop-blur-md shadow-[-40px_0_100px_rgba(0,0,0,0.95)] z-20 overflow-hidden"
         style={{
-          transform: gateOpen ? 'translateX(102%) rotateY(6deg)' : 'translateX(0%) rotateY(0deg)',
+          transform: gateOpen ? 'translateX(104%) rotateY(6deg)' : 'translateX(0%) rotateY(0deg)',
           transformOrigin: 'right center',
           transition: 'transform 3800ms cubic-bezier(0.22, 1, 0.36, 1)',
         }}
       >
-        {/* Diamond Carbon Plating Grid Background (Exact match to screenshot) */}
+        {/* Diamond Carbon Plating Grid Background */}
         <div className="absolute inset-0 bg-[linear-gradient(135deg,#0a0d14_25%,transparent_25%),linear-gradient(225deg,#0a0d14_25%,transparent_25%),linear-gradient(45deg,#0a0d14_25%,transparent_25%),linear-gradient(315deg,#0a0d14_25%,#050608_25%)] bg-[size:48px_48px] opacity-45 pointer-events-none" />
         <div className="absolute inset-0 bg-radial-gradient from-transparent via-[#06070a]/60 to-[#020204] pointer-events-none" />
       </div>
 
       {/* ========================================================
           VERTICAL CHEVRON ENERGY COLUMN (EXACT AS SCREENSHOT)
+          Directly conduits energy from Sovereign 3D Core!
           ======================================================== */}
       <div
         className={`absolute top-0 bottom-0 left-1/2 -translate-x-1/2 z-25 flex flex-col items-center justify-between pointer-events-none py-2 transition-all duration-[3000ms] ${
@@ -147,9 +187,9 @@ export default function IntroScreen({ onComplete }) {
         style={{ width: '48px' }}
       >
         {/* Glowing vertical line track */}
-        <div className="absolute inset-y-0 left-1/2 -translate-x-1/2 w-[2px] bg-gradient-to-b from-[#00e5ff] via-[#00ff88] to-[#00e5ff] opacity-80 shadow-[0_0_15px_#00ff88]" />
+        <div className="absolute inset-y-0 left-1/2 -translate-x-1/2 w-[2px] bg-gradient-to-b from-[#00e5ff] via-[#00ff88] to-[#00e5ff] opacity-85 shadow-[0_0_15px_#00ff88]" />
 
-        {/* Cascading Chevrons: Repeating neon arrows pointing down/up */}
+        {/* Cascading Chevrons */}
         <div className="flex flex-col items-center justify-around h-full w-full opacity-90">
           {[...Array(28)].map((_, i) => (
             <svg
@@ -182,7 +222,6 @@ export default function IntroScreen({ onComplete }) {
           gateOpen ? 'opacity-0 scale-110' : 'opacity-100'
         }`}
       >
-        {/* Dual Steel Hydraulic Pistons */}
         <div className="relative w-48 h-full flex justify-between px-8">
           <div className="w-5 h-full bg-gradient-to-r from-zinc-800 via-zinc-400 to-zinc-900 rounded-full border border-zinc-700 shadow-[0_0_25px_rgba(0,0,0,0.8)] opacity-75" />
           <div className="w-5 h-full bg-gradient-to-r from-zinc-800 via-zinc-400 to-zinc-900 rounded-full border border-zinc-700 shadow-[0_0_25px_rgba(0,0,0,0.8)] opacity-75" />
@@ -200,21 +239,20 @@ export default function IntroScreen({ onComplete }) {
           transition: 'all 2800ms cubic-bezier(0.16, 1, 0.3, 1)',
         }}
       >
-        {/* Circular Outer HUD & Core Container */}
         <div className="relative flex items-center justify-center">
           {/* Fine Cyan Dashed Orbital Rings */}
           <div className="w-72 h-72 sm:w-88 sm:h-88 rounded-full border border-dashed border-[#00e5ff]/40 animate-[spin_32s_linear_infinite]" />
           <div className="absolute w-64 h-64 sm:w-80 sm:h-80 rounded-full border border-dashed border-[#00ff88]/30 animate-[spin_24s_linear_infinite_reverse]" />
 
-          {/* Glowing Aura Bloom behind center core */}
+          {/* Glowing Aura Bloom */}
           <div
             className={`absolute w-56 h-56 sm:w-72 sm:h-72 rounded-full filter blur-3xl transition-colors duration-700 ${
               isUnlocked ? 'bg-[#00ff88]/35 animate-pulse' : 'bg-[#00e5ff]/20'
             }`}
           />
 
-          {/* Heavy Dark Vault Reactor Shell */}
-          <div className="absolute w-56 h-56 sm:w-68 sm:h-68 rounded-full bg-[#0d0f17] border-[6px] border-[#1a1d29] shadow-[0_0_60px_rgba(0,0,0,0.95)] flex flex-col items-center justify-center p-6 text-center">
+          {/* Heavy Dark Vault Shell with Direct DOM Refs */}
+          <div className="absolute w-56 h-56 sm:w-68 sm:h-68 rounded-full bg-[#0d0f17]/95 border-[6px] border-[#1a1d29] shadow-[0_0_60px_rgba(0,0,0,0.95)] flex flex-col items-center justify-center p-6 text-center">
             {/* SVG Circular Progress Gauge */}
             <svg className="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 100 100">
               <circle
@@ -226,20 +264,21 @@ export default function IntroScreen({ onComplete }) {
                 fill="transparent"
               />
               <circle
+                ref={circleProgressRef}
                 cx="50"
                 cy="50"
                 r="44"
-                className="transition-all duration-75 ease-out"
                 stroke={isUnlocked ? '#00ff88' : '#00e5ff'}
                 strokeWidth="3.5"
                 strokeDasharray={276.46}
-                strokeDashoffset={276.46 - (276.46 * progress) / 100}
+                strokeDashoffset={276.46}
                 strokeLinecap="round"
                 fill="transparent"
                 style={{
                   filter: isUnlocked
                     ? 'drop-shadow(0 0 12px #00ff88)'
                     : 'drop-shadow(0 0 8px #00e5ff)',
+                  transition: 'stroke 300ms ease',
                 }}
               />
             </svg>
@@ -257,20 +296,24 @@ export default function IntroScreen({ onComplete }) {
                 </span>
               </div>
 
-              {/* Giant Bold Percentage */}
+              {/* Giant Bold Percentage - Direct DOM node for 100% zero-lag performance */}
               <div
+                ref={progressTextRef}
                 className={`font-display font-black text-5xl sm:text-6xl tracking-tighter leading-none ${
                   isUnlocked
                     ? 'text-transparent bg-clip-text bg-gradient-to-r from-[#00ff88] via-white to-[#00ff88] drop-shadow-[0_0_25px_#00ff88]'
                     : 'text-white'
                 }`}
               >
-                {progress}%
+                0%
               </div>
 
               {/* Status Indicator */}
-              <div className="text-[11px] font-mono text-[#00ff88] max-w-[180px] truncate tracking-wider">
-                {statusText}
+              <div
+                ref={statusTextRef}
+                className="text-[11px] font-mono text-[#00ff88] max-w-[180px] truncate tracking-wider"
+              >
+                INITIALIZING BLAST VAULT...
               </div>
             </div>
           </div>
@@ -279,10 +322,8 @@ export default function IntroScreen({ onComplete }) {
         {/* Bottom Status Text: Exact match to user screenshot */}
         <div className="mt-12 flex items-center space-x-2 text-[11px] font-mono text-zinc-500 tracking-widest uppercase">
           <div className="w-2 h-2 rounded-sm border border-[#00e5ff] bg-[#00e5ff]/30 animate-spin" />
-          <span>
-            {isUnlocked
-              ? 'DISENGAGING BLAST SEALS...'
-              : 'ENGAGING HYDRAULIC PRESSURE CHAMBERS...'}
+          <span ref={bottomStatusRef}>
+            ENGAGING HYDRAULIC PRESSURE CHAMBERS...
           </span>
         </div>
       </div>

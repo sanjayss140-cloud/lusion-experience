@@ -35,17 +35,22 @@ export default function App() {
         {/* 02: Selected Case Studies / Interactive 3D Tilt Projects */}
         <ProjectShowcase />
 
-        {/* 03: Lusion Labs 3D Hyper-Faceted Crystal & Geometry Sculptor */}
-        <InteractivePlayground />
+        {/* Below-the-fold 3D components mount smoothly after intro finishes */}
+        {introDone && (
+          <>
+            {/* 03: Lusion Labs 3D Hyper-Faceted Crystal & Geometry Sculptor */}
+            <InteractivePlayground />
 
-        {/* 04: 12,000 GPU Particle Neural Fluid Tornado Simulation */}
-        <FluidVortex />
+            {/* 04: 25,000 GPU Particle Neural Fluid Tornado Simulation */}
+            <FluidVortex />
 
-        {/* 05: Acoustic Matter - Synthesizer 3D Waveform Sculptor */}
-        <AudioSculptor />
+            {/* 05: Acoustic Matter - Synthesizer 3D Waveform Sculptor */}
+            <AudioSculptor />
 
-        {/* 06: Quantum Spatial Core - 4D Triple-Axis Gyroscope Engine */}
-        <QuantumSpatialCore />
+            {/* 06: Quantum Spatial Core - 4D Triple-Axis Gyroscope Engine */}
+            <QuantumSpatialCore />
+          </>
+        )}
 
         {/* 07: Studio Capabilities & Kinetic Ticker */}
         <Capabilities />

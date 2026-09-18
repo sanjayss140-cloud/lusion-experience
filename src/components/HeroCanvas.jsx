@@ -59,7 +59,17 @@ export default function HeroCanvas() {
       0.1,
       100
     );
-    camera.position.z = 4.8;
+    // Start slightly pulled back behind the blast gates, then glide in to 4.8 when gates open
+    camera.position.z = 6.2;
+    let targetCameraZ = 6.2;
+
+    const onGateOpening = () => {
+      targetCameraZ = 4.8;
+      if (triggerShockwaveRef.current) {
+        triggerShockwaveRef.current(0.9);
+      }
+    };
+    window.addEventListener('gate:opening', onGateOpening);
 
     const renderer = new THREE.WebGLRenderer({
       antialias: true,
@@ -262,6 +272,11 @@ export default function HeroCanvas() {
       particles.rotation.y = elapsedTime * 0.03;
       particles.rotation.x = Math.sin(elapsedTime * 0.02) * 0.15;
 
+      // Smooth camera glide into scene from intro position
+      if (Math.abs(camera.position.z - targetCameraZ) > 0.005) {
+        camera.position.z += (targetCameraZ - camera.position.z) * 0.025;
+      }
+
       renderer.render(scene, camera);
 
       // FPS Calculation
@@ -280,6 +295,7 @@ export default function HeroCanvas() {
 
     return () => {
       cancelAnimationFrame(reqId);
+      window.removeEventListener('gate:opening', onGateOpening);
       window.removeEventListener('pointermove', onPointerMove);
       container.removeEventListener('pointerdown', onPointerDown);
       window.removeEventListener('pointerup', onPointerUp);
