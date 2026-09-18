@@ -167,6 +167,70 @@ class SoundEngine {
     } catch (e) {}
   }
 
+  // HEAVY HYDRAULIC BLAST GATE OPENING SOUND
+  playGateOpen() {
+    this.init();
+    if (!this.ctx) return;
+    if (this.ctx.state === 'suspended') {
+      this.ctx.resume();
+    }
+    try {
+      const now = this.ctx.currentTime;
+
+      // 1. Deep sub-bass seismic impact (120Hz down to 24Hz)
+      const subOsc = this.ctx.createOscillator();
+      const subGain = this.ctx.createGain();
+      subOsc.type = 'sine';
+      subOsc.frequency.setValueAtTime(130, now);
+      subOsc.frequency.exponentialRampToValueAtTime(24, now + 1.2);
+      subGain.gain.setValueAtTime(0.35, now);
+      subGain.gain.exponentialRampToValueAtTime(0.0001, now + 1.3);
+      subOsc.connect(subGain);
+      subGain.connect(this.ctx.destination);
+      subOsc.start(now);
+      subOsc.stop(now + 1.3);
+
+      // 2. High-pressure hydraulic hiss release
+      const bufferSize = this.ctx.sampleRate * 0.8;
+      const noiseBuffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+      const output = noiseBuffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        output[i] = Math.random() * 2 - 1;
+      }
+      const whiteNoise = this.ctx.createBufferSource();
+      whiteNoise.buffer = noiseBuffer;
+      const noiseFilter = this.ctx.createBiquadFilter();
+      noiseFilter.type = 'bandpass';
+      noiseFilter.frequency.setValueAtTime(800, now);
+      noiseFilter.frequency.exponentialRampToValueAtTime(250, now + 0.8);
+      noiseFilter.Q.setValueAtTime(3.0, now);
+
+      const noiseGain = this.ctx.createGain();
+      noiseGain.gain.setValueAtTime(0.12, now);
+      noiseGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.8);
+
+      whiteNoise.connect(noiseFilter);
+      noiseFilter.connect(noiseGain);
+      noiseGain.connect(this.ctx.destination);
+      whiteNoise.start(now);
+
+      // 3. Metallic clamp disengage clank
+      const clankOsc = this.ctx.createOscillator();
+      const clankGain = this.ctx.createGain();
+      clankOsc.type = 'sawtooth';
+      clankOsc.frequency.setValueAtTime(440, now);
+      clankOsc.frequency.exponentialRampToValueAtTime(110, now + 0.18);
+      clankGain.gain.setValueAtTime(0.15, now);
+      clankGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.2);
+      clankOsc.connect(clankGain);
+      clankGain.connect(this.ctx.destination);
+      clankOsc.start(now);
+      clankOsc.stop(now + 0.2);
+    } catch (e) {
+      console.warn('Audio gate error:', e);
+    }
+  }
+
   playSuccess() {
     if (this.isMuted || !this.ctx || this.ctx.state !== 'running') return;
     const notes = [440, 554.37, 659.25, 880, 1108.73];
