@@ -77,7 +77,7 @@ export default function HeroCanvas() {
       powerPreference: 'high-performance',
     });
     renderer.setSize(container.clientWidth, container.clientHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, window.innerWidth < 768 ? 1.5 : 2));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.15;
     container.appendChild(renderer.domElement);
@@ -351,6 +351,7 @@ export default function HeroCanvas() {
       <div
         ref={containerRef}
         className="absolute inset-0 z-0 cursor-grab active:cursor-grabbing"
+        style={{ touchAction: 'pan-y' }}
       />
 
       {/* Decorative Grid & Gradients */}
@@ -380,13 +381,13 @@ export default function HeroCanvas() {
               // Creative Production Studio
             </span>
           </div>
-          <h1 className="font-display font-black text-5xl sm:text-7xl lg:text-8xl tracking-tighter leading-[0.92] text-white drop-shadow-[0_10px_35px_rgba(0,0,0,0.8)]">
+          <h1 className="font-display font-black text-4xl sm:text-7xl lg:text-8xl tracking-tighter leading-[0.92] text-white drop-shadow-[0_10px_35px_rgba(0,0,0,0.8)]">
             WE CRAFT <br />
             <span className="bg-gradient-to-r from-white via-zinc-200 to-zinc-500 bg-clip-text text-transparent">
               THE UNSEEN.
             </span>
           </h1>
-          <p className="mt-6 text-base sm:text-lg text-zinc-300 max-w-xl font-sans font-light leading-relaxed drop-shadow-md">
+          <p className="mt-6 text-sm sm:text-lg text-zinc-300 max-w-xl font-sans font-light leading-relaxed drop-shadow-md">
             Interactive real-time 3D simulation, procedural shaders, and fluid physics engineered to defy ordinary digital boundaries.
           </p>
 
@@ -394,14 +395,14 @@ export default function HeroCanvas() {
           <div className="mt-8 flex flex-wrap gap-3 pointer-events-auto">
             <button
               onClick={triggerManualShockwave}
-              className="flex items-center space-x-2 bg-[#00ff88] text-black font-bold font-sans text-xs px-5 py-3 rounded-full hover:bg-white hover:scale-105 transition-all shadow-[0_0_25px_rgba(0,255,136,0.4)]"
+              className="flex items-center space-x-2 bg-[#00ff88] text-black font-bold font-sans text-xs px-5 py-3 rounded-full hover:bg-white hover:scale-105 transition-all shadow-[0_0_25px_rgba(0,255,136,0.4)] cursor-pointer"
             >
               <Zap className="w-4 h-4 fill-black" />
               <span>EXPLODE SHOCKWAVE</span>
             </button>
             <button
               onClick={() => handleModeChange(5)}
-              className="flex items-center space-x-2 bg-white/10 text-white font-semibold font-sans text-xs px-5 py-3 rounded-full border border-white/20 hover:bg-white/20 hover:border-white transition-all backdrop-blur-md"
+              className="flex items-center space-x-2 bg-white/10 text-white font-semibold font-sans text-xs px-5 py-3 rounded-full border border-white/20 hover:bg-white/20 hover:border-white transition-all backdrop-blur-md cursor-pointer"
             >
               <Orbit className="w-4 h-4 text-red-400" />
               <span>SUPERNOVA MODE</span>
@@ -411,8 +412,8 @@ export default function HeroCanvas() {
 
         {/* Bottom Bar: Shader Preset Switcher */}
         <div className="flex flex-col lg:flex-row items-center justify-between gap-4 pointer-events-auto border-t border-white/10 pt-5">
-          {/* Preset Buttons */}
-          <div className="flex flex-wrap items-center gap-1.5 bg-[#0a0a0e]/85 backdrop-blur-2xl border border-white/15 p-1.5 rounded-2xl">
+          {/* Preset Buttons - horizontally scrollable on mobile */}
+          <div className="flex items-center gap-1.5 bg-[#0a0a0e]/85 backdrop-blur-2xl border border-white/15 p-1.5 rounded-2xl max-w-full overflow-x-auto py-1.5">
             <span className="text-[10px] font-mono text-zinc-400 px-3 hidden xl:inline">
               MORPH PRESET:
             </span>

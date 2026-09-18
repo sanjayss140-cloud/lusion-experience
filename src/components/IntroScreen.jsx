@@ -184,17 +184,17 @@ export default function IntroScreen({ onComplete }) {
         className={`absolute top-0 bottom-0 left-1/2 -translate-x-1/2 z-25 flex flex-col items-center justify-between pointer-events-none py-2 transition-all duration-[3000ms] ${
           gateOpen ? 'opacity-0 scale-y-125' : 'opacity-100'
         }`}
-        style={{ width: '48px' }}
+        style={{ width: '36px' }}
       >
         {/* Glowing vertical line track */}
         <div className="absolute inset-y-0 left-1/2 -translate-x-1/2 w-[2px] bg-gradient-to-b from-[#00e5ff] via-[#00ff88] to-[#00e5ff] opacity-85 shadow-[0_0_15px_#00ff88]" />
 
         {/* Cascading Chevrons */}
         <div className="flex flex-col items-center justify-around h-full w-full opacity-90">
-          {[...Array(28)].map((_, i) => (
+          {[...Array(26)].map((_, i) => (
             <svg
               key={i}
-              className="w-7 h-5 animate-pulse"
+              className="w-5 h-3.5 sm:w-7 sm:h-5 animate-pulse"
               viewBox="0 0 24 16"
               fill="none"
               style={{
@@ -222,9 +222,9 @@ export default function IntroScreen({ onComplete }) {
           gateOpen ? 'opacity-0 scale-110' : 'opacity-100'
         }`}
       >
-        <div className="relative w-48 h-full flex justify-between px-8">
-          <div className="w-5 h-full bg-gradient-to-r from-zinc-800 via-zinc-400 to-zinc-900 rounded-full border border-zinc-700 shadow-[0_0_25px_rgba(0,0,0,0.8)] opacity-75" />
-          <div className="w-5 h-full bg-gradient-to-r from-zinc-800 via-zinc-400 to-zinc-900 rounded-full border border-zinc-700 shadow-[0_0_25px_rgba(0,0,0,0.8)] opacity-75" />
+        <div className="relative w-36 sm:w-48 h-full flex justify-between px-4 sm:px-8">
+          <div className="w-4 sm:w-5 h-full bg-gradient-to-r from-zinc-800 via-zinc-400 to-zinc-900 rounded-full border border-zinc-700 shadow-[0_0_25px_rgba(0,0,0,0.8)] opacity-75" />
+          <div className="w-4 sm:w-5 h-full bg-gradient-to-r from-zinc-800 via-zinc-400 to-zinc-900 rounded-full border border-zinc-700 shadow-[0_0_25px_rgba(0,0,0,0.8)] opacity-75" />
         </div>
       </div>
 
@@ -232,7 +232,7 @@ export default function IntroScreen({ onComplete }) {
           CENTER CIRCULAR VAULT CORE (EXACT AS SCREENSHOT)
           ======================================================== */}
       <div
-        className="absolute inset-0 z-30 flex flex-col items-center justify-center pointer-events-none"
+        className="absolute inset-0 z-30 flex flex-col items-center justify-center pointer-events-none px-4"
         style={{
           opacity: gateOpen ? 0 : 1,
           transform: gateOpen ? 'scale(1.2)' : 'scale(1)',
@@ -241,18 +241,18 @@ export default function IntroScreen({ onComplete }) {
       >
         <div className="relative flex items-center justify-center">
           {/* Fine Cyan Dashed Orbital Rings */}
-          <div className="w-72 h-72 sm:w-88 sm:h-88 rounded-full border border-dashed border-[#00e5ff]/40 animate-[spin_32s_linear_infinite]" />
-          <div className="absolute w-64 h-64 sm:w-80 sm:h-80 rounded-full border border-dashed border-[#00ff88]/30 animate-[spin_24s_linear_infinite_reverse]" />
+          <div className="w-64 h-64 sm:w-88 sm:h-88 rounded-full border border-dashed border-[#00e5ff]/40 animate-[spin_32s_linear_infinite]" />
+          <div className="absolute w-56 h-56 sm:w-80 sm:h-80 rounded-full border border-dashed border-[#00ff88]/30 animate-[spin_24s_linear_infinite_reverse]" />
 
           {/* Glowing Aura Bloom */}
           <div
-            className={`absolute w-56 h-56 sm:w-72 sm:h-72 rounded-full filter blur-3xl transition-colors duration-700 ${
+            className={`absolute w-48 h-48 sm:w-72 sm:h-72 rounded-full filter blur-3xl transition-colors duration-700 ${
               isUnlocked ? 'bg-[#00ff88]/35 animate-pulse' : 'bg-[#00e5ff]/20'
             }`}
           />
 
           {/* Heavy Dark Vault Shell with Direct DOM Refs */}
-          <div className="absolute w-56 h-56 sm:w-68 sm:h-68 rounded-full bg-[#0d0f17]/95 border-[6px] border-[#1a1d29] shadow-[0_0_60px_rgba(0,0,0,0.95)] flex flex-col items-center justify-center p-6 text-center">
+          <div className="absolute w-48 h-48 sm:w-68 sm:h-68 rounded-full bg-[#0d0f17]/95 border-4 sm:border-[6px] border-[#1a1d29] shadow-[0_0_60px_rgba(0,0,0,0.95)] flex flex-col items-center justify-center p-4 sm:p-6 text-center">
             {/* SVG Circular Progress Gauge */}
             <svg className="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 100 100">
               <circle
@@ -284,14 +284,14 @@ export default function IntroScreen({ onComplete }) {
             </svg>
 
             {/* Core Center Readout (Lock + 0% -> 100% + Status) */}
-            <div className="relative z-10 flex flex-col items-center space-y-1.5">
+            <div className="relative z-10 flex flex-col items-center space-y-1">
               <div className="flex items-center space-x-1.5">
                 {isUnlocked ? (
-                  <Unlock className="w-4 h-4 text-[#00ff88] animate-bounce" />
+                  <Unlock className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#00ff88] animate-bounce" />
                 ) : (
-                  <Lock className="w-4 h-4 text-[#00e5ff] animate-pulse" />
+                  <Lock className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#00e5ff] animate-pulse" />
                 )}
-                <span className="font-mono text-[11px] text-zinc-400 tracking-widest uppercase">
+                <span className="font-mono text-[9px] sm:text-[11px] text-zinc-400 tracking-widest uppercase">
                   {isUnlocked ? 'AURA UNLOCKED' : 'HYDRAULIC LOCK'}
                 </span>
               </div>
@@ -299,7 +299,7 @@ export default function IntroScreen({ onComplete }) {
               {/* Giant Bold Percentage - Direct DOM node for 100% zero-lag performance */}
               <div
                 ref={progressTextRef}
-                className={`font-display font-black text-5xl sm:text-6xl tracking-tighter leading-none ${
+                className={`font-display font-black text-4xl sm:text-6xl tracking-tighter leading-none ${
                   isUnlocked
                     ? 'text-transparent bg-clip-text bg-gradient-to-r from-[#00ff88] via-white to-[#00ff88] drop-shadow-[0_0_25px_#00ff88]'
                     : 'text-white'
@@ -311,7 +311,7 @@ export default function IntroScreen({ onComplete }) {
               {/* Status Indicator */}
               <div
                 ref={statusTextRef}
-                className="text-[11px] font-mono text-[#00ff88] max-w-[180px] truncate tracking-wider"
+                className="text-[9px] sm:text-[11px] font-mono text-[#00ff88] max-w-[150px] sm:max-w-[180px] truncate tracking-wider"
               >
                 INITIALIZING BLAST VAULT...
               </div>
@@ -320,7 +320,7 @@ export default function IntroScreen({ onComplete }) {
         </div>
 
         {/* Bottom Status Text: Exact match to user screenshot */}
-        <div className="mt-12 flex items-center space-x-2 text-[11px] font-mono text-zinc-500 tracking-widest uppercase">
+        <div className="mt-8 sm:mt-12 flex items-center space-x-2 text-[10px] sm:text-[11px] font-mono text-zinc-500 tracking-widest uppercase">
           <div className="w-2 h-2 rounded-sm border border-[#00e5ff] bg-[#00e5ff]/30 animate-spin" />
           <span ref={bottomStatusRef}>
             ENGAGING HYDRAULIC PRESSURE CHAMBERS...

@@ -38,13 +38,13 @@ export default function FluidVortex() {
       powerPreference: 'high-performance',
     });
     renderer.setSize(container.clientWidth, container.clientHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, window.innerWidth < 768 ? 1.5 : 2));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.45;
     container.appendChild(renderer.domElement);
 
-    // 25,000 High-Velocity Relativistic Fluid Particles
-    const count = 25000;
+    // 12,000 particles on mobile (silky 60fps), 25,000 on desktop
+    const count = window.innerWidth < 768 ? 12000 : 25000;
     const geometry = new THREE.BufferGeometry();
     const positions = new Float32Array(count * 3);
     const colors = new Float32Array(count * 3);

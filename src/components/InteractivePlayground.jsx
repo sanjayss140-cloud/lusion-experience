@@ -152,7 +152,7 @@ export default function InteractivePlayground() {
       powerPreference: 'high-performance',
     });
     renderer.setSize(container.clientWidth, container.clientHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, window.innerWidth < 768 ? 1.5 : 2));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.35;
     container.appendChild(renderer.domElement);
@@ -422,10 +422,14 @@ export default function InteractivePlayground() {
         {/* 3D Viewport with Glass GUI HUD */}
         <div className="relative w-full h-[640px] rounded-3xl overflow-hidden border border-white/20 bg-gradient-to-b from-black via-zinc-950 to-black shadow-2xl backdrop-blur-md">
           {/* WebGL Canvas */}
-          <div ref={mountRef} className="w-full h-full cursor-grab active:cursor-grabbing" />
+          <div
+            ref={mountRef}
+            className="w-full h-full cursor-grab active:cursor-grabbing"
+            style={{ touchAction: 'pan-y' }}
+          />
 
-          {/* Top Left: 5 Hypnotic Knot & Manifold Sculptures */}
-          <div className="absolute top-6 left-6 flex flex-wrap items-center gap-2 bg-black/85 backdrop-blur-2xl border border-white/20 p-2 rounded-2xl max-w-2xl shadow-xl">
+          {/* Top: 5 Hypnotic Knot & Manifold Sculptures */}
+          <div className="absolute top-4 sm:top-6 left-4 sm:left-6 right-4 sm:right-auto flex flex-wrap items-center gap-1.5 sm:gap-2 bg-black/85 backdrop-blur-2xl border border-white/20 p-2 rounded-2xl max-w-full sm:max-w-2xl shadow-xl">
             {shapes.map((s) => {
               const Icon = s.icon;
               const isSel = currentShape === s.id;
@@ -434,13 +438,13 @@ export default function InteractivePlayground() {
                   key={s.id}
                   onClick={() => handleShapeChange(s.id)}
                   onMouseEnter={() => sound.playHover()}
-                  className={`flex items-center space-x-2 px-3.5 py-2 rounded-xl text-xs font-mono transition-all duration-200 ${
+                  className={`flex items-center space-x-1.5 sm:space-x-2 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-xl text-[11px] sm:text-xs font-mono transition-all duration-200 cursor-pointer ${
                     isSel
                       ? 'bg-[#00ff88] text-black font-extrabold shadow-[0_0_25px_rgba(0,255,136,0.7)] scale-105'
                       : 'text-zinc-300 hover:text-white hover:bg-white/10'
                   }`}
                 >
-                  <Icon className="w-4 h-4" />
+                  <Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   <span>{s.label}</span>
                 </button>
               );
@@ -448,11 +452,11 @@ export default function InteractivePlayground() {
           </div>
 
           {/* Top Right: Disperse Action */}
-          <div className="absolute top-6 right-6">
+          <div className="hidden sm:block absolute top-6 right-6">
             <button
               onClick={triggerExplosion}
               onMouseEnter={() => sound.playHover()}
-              className="flex items-center space-x-2 bg-white/10 hover:bg-[#00ff88] hover:text-black transition-colors backdrop-blur-md border border-white/20 px-4 py-2.5 rounded-2xl text-xs font-mono font-bold shadow-lg"
+              className="flex items-center space-x-2 bg-white/10 hover:bg-[#00ff88] hover:text-black transition-colors backdrop-blur-md border border-white/20 px-4 py-2.5 rounded-2xl text-xs font-mono font-bold shadow-lg cursor-pointer"
             >
               <Zap className="w-4 h-4" />
               <span>DISPERSE FIELD</span>
@@ -460,7 +464,7 @@ export default function InteractivePlayground() {
           </div>
 
           {/* Bottom HUD */}
-          <div className="absolute bottom-6 left-6 right-6 flex flex-wrap items-center justify-between gap-4 bg-black/85 backdrop-blur-2xl border border-white/20 p-4 rounded-2xl">
+          <div className="absolute bottom-4 sm:bottom-6 left-4 sm:left-6 right-4 sm:right-6 flex flex-wrap items-center justify-between gap-3 sm:gap-4 bg-black/85 backdrop-blur-2xl border border-white/20 p-3 sm:p-4 rounded-2xl">
             {/* Speed & Wireframe */}
             <div className="flex flex-wrap items-center gap-6">
               <div className="flex items-center space-x-3 text-xs font-mono">

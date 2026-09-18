@@ -236,32 +236,65 @@ export default function ContactFooter({ isInquireOpen, setIsInquireOpen }) {
 
             {formSubmitted ? (
               /* Success State - User stays right on website! */
-              <div className="text-center py-12 space-y-5 animate-scale-up">
-                <div className="w-20 h-20 rounded-full bg-[#00ff88]/15 text-[#00ff88] border border-[#00ff88]/40 mx-auto flex items-center justify-center shadow-[0_0_30px_rgba(0,255,136,0.4)]">
-                  <CheckCircle2 className="w-10 h-10" />
+              <div className="text-center py-8 sm:py-12 space-y-5 animate-scale-up">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-[#00ff88]/15 text-[#00ff88] border border-[#00ff88]/40 mx-auto flex items-center justify-center shadow-[0_0_30px_rgba(0,255,136,0.4)]">
+                  <CheckCircle2 className="w-8 h-8 sm:w-10 sm:h-10" />
                 </div>
                 <div className="inline-flex items-center space-x-2 text-xs font-mono text-[#00ff88] px-3 py-1 rounded-full border border-[#00ff88]/30 bg-[#00ff88]/10">
                   <ShieldCheck className="w-4 h-4" />
                   <span>TRANSMISSION CONFIRMED</span>
                 </div>
-                <h3 className="font-display font-extrabold text-3xl sm:text-4xl text-white">
-                  BRIEF RECEIVED BY SANJAY
+                <h3 className="font-display font-extrabold text-2xl sm:text-4xl text-white">
+                  BRIEF DISPATCHED TO SANJAY
                 </h3>
-                <p className="text-zinc-300 text-sm font-sans max-w-md mx-auto leading-relaxed">
-                  Thank you, <span className="text-white font-bold">{formData.name}</span>. Your project brief has been dispatched directly to <span className="text-[#00ff88] font-mono font-bold">{recipientEmail}</span>. Sanjay will review your requirements and respond within 24 hours.
+                <p className="text-zinc-300 text-xs sm:text-sm font-sans max-w-md mx-auto leading-relaxed">
+                  Thank you, <span className="text-white font-bold">{formData.name || 'Client'}</span>. Your project brief has been transmitted directly to <span className="text-[#00ff88] font-mono font-bold">{recipientEmail}</span>.
                 </p>
 
-                <div className="pt-6 flex justify-center">
+                {/* Direct 1-Click Mail Client Backup */}
+                <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
+                  <a
+                    href={`mailto:${recipientEmail}?subject=${encodeURIComponent(`Project Commission Brief from ${formData.name || 'Client'}`)}&body=${encodeURIComponent(
+`Hi Sanjay,
+
+Here are my project commission details:
+Name: ${formData.name || 'Client'}
+Email: ${formData.email || 'N/A'}
+Selected Services: ${selectedServices.join(', ')}
+Estimated Budget: ${budget}
+
+Project Vision & Objectives:
+${formData.message || 'No additional notes.'}
+
+Looking forward to hearing from you!`
+                    )}`}
+                    className="w-full sm:w-auto inline-flex items-center justify-center space-x-2 bg-[#00ff88] text-black font-extrabold text-xs font-mono px-6 py-3.5 rounded-full hover:bg-white transition-all shadow-[0_0_20px_rgba(0,255,136,0.4)] cursor-pointer"
+                  >
+                    <Mail className="w-4 h-4" />
+                    <span>OPEN DIRECT IN GMAIL / MAIL APP</span>
+                  </a>
+
                   <button
                     onClick={() => {
                       sound.playClick();
                       setIsInquireOpen(false);
                       setFormData({ name: '', email: '', message: '' });
                     }}
-                    className="bg-white text-black font-extrabold text-xs font-mono px-8 py-3.5 rounded-full hover:bg-[#00ff88] transition-colors"
+                    className="w-full sm:w-auto bg-white/10 text-white font-mono text-xs px-6 py-3.5 rounded-full hover:bg-white hover:text-black transition-colors"
                   >
-                    CONTINUE EXPLORING SITE
+                    CONTINUE BROWSING
                   </button>
+                </div>
+
+                {/* Helpful Delivery Status Notice */}
+                <div className="mt-4 text-[11px] font-mono text-zinc-400 bg-white/5 border border-white/10 p-3.5 rounded-2xl max-w-lg mx-auto text-left space-y-1">
+                  <p className="text-white font-semibold flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5 text-[#00ff88]" />
+                    <span>DELIVERY VERIFICATION:</span>
+                  </p>
+                  <p className="text-zinc-400 leading-relaxed text-[10px] sm:text-[11px]">
+                    Dispatched to <span className="text-[#00ff88] font-bold">{recipientEmail}</span>. If you are Sanjay testing this, check your inbox & Spam/Promotions folder for FormSubmit's activation email titled <i>"Action Required: Activate Form"</i> to confirm direct inbox forwarding!
+                  </p>
                 </div>
               </div>
             ) : (
@@ -341,7 +374,7 @@ export default function ContactFooter({ isInquireOpen, setIsInquireOpen }) {
                       placeholder="Alex Morgan"
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      className="w-full bg-black/70 border border-white/15 focus:border-[#00ff88] outline-none px-4 py-3.5 rounded-xl text-sm font-mono text-white placeholder:text-zinc-600"
+                      className="w-full bg-black/70 border border-white/15 focus:border-[#00ff88] outline-none px-4 py-3.5 rounded-xl text-base sm:text-sm font-mono text-white placeholder:text-zinc-600"
                     />
                   </div>
                   <div>
@@ -354,7 +387,7 @@ export default function ContactFooter({ isInquireOpen, setIsInquireOpen }) {
                       placeholder="alex@company.com"
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      className="w-full bg-black/70 border border-white/15 focus:border-[#00ff88] outline-none px-4 py-3.5 rounded-xl text-sm font-mono text-white placeholder:text-zinc-600"
+                      className="w-full bg-black/70 border border-white/15 focus:border-[#00ff88] outline-none px-4 py-3.5 rounded-xl text-base sm:text-sm font-mono text-white placeholder:text-zinc-600"
                     />
                   </div>
                 </div>
@@ -368,7 +401,7 @@ export default function ContactFooter({ isInquireOpen, setIsInquireOpen }) {
                     placeholder="Describe your desired aesthetic, deliverables, and timeline..."
                     value={formData.message}
                     onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                    className="w-full bg-black/70 border border-white/15 focus:border-[#00ff88] outline-none p-4 rounded-xl text-sm font-mono text-white placeholder:text-zinc-600"
+                    className="w-full bg-black/70 border border-white/15 focus:border-[#00ff88] outline-none p-4 rounded-xl text-base sm:text-sm font-mono text-white placeholder:text-zinc-600"
                   />
                 </div>
 

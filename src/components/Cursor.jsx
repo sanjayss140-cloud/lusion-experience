@@ -72,7 +72,7 @@ export default function Cursor() {
   }, []);
 
   return (
-    <div className="pointer-events-none fixed inset-0 z-[99999] overflow-hidden">
+    <div className="hidden md:block pointer-events-none fixed inset-0 z-[99999] overflow-hidden">
       {/* Trailing luminous aura ring that tracks cursor without blocking anything */}
       <div
         ref={ringRef}
