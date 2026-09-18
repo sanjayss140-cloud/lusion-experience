@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import IntroScreen from './components/IntroScreen';
 import Cursor from './components/Cursor';
 import Navbar from './components/Navbar';
 import HeroCanvas from './components/HeroCanvas';
@@ -13,9 +14,13 @@ import ContactFooter from './components/ContactFooter';
 
 export default function App() {
   const [isInquireOpen, setIsInquireOpen] = useState(false);
+  const [introDone, setIntroDone] = useState(false);
 
   return (
     <div className="relative min-h-screen bg-[#080808] text-[#f0f0f0] selection:bg-[#00ff88] selection:text-black overflow-x-hidden font-sans">
+      {/* Cinematic Super Aura Boot Sequence Intro */}
+      {!introDone && <IntroScreen onComplete={() => setIntroDone(true)} />}
+
       {/* Custom Fluid Inertial Cursor */}
       <Cursor />
 
