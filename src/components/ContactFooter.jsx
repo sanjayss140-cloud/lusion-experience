@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import confetti from 'canvas-confetti';
-import { ArrowUpRight, ArrowUp, Send, CheckCircle2, Sparkles, X, Mail, User, ShieldCheck } from 'lucide-react';
+import { ArrowUpRight, ArrowUp, Send, CheckCircle2, Sparkles, X, Mail, User, ShieldCheck, Copy, Check } from 'lucide-react';
 import { sound } from './SoundController';
 
 export default function ContactFooter({ isInquireOpen, setIsInquireOpen }) {
@@ -42,6 +42,26 @@ export default function ContactFooter({ isInquireOpen, setIsInquireOpen }) {
     }
   };
 
+  const [copied, setCopied] = useState(false);
+  const [deliveryResult, setDeliveryResult] = useState({ success: true, message: '' });
+
+  const copyBriefToClipboard = () => {
+    sound.playClick();
+    const briefText = `PROJECT BRIEF FOR SANJAY (${recipientEmail})
+-----------------------------------------
+Client Name: ${formData.name || 'Client'}
+Client Email: ${formData.email || 'N/A'}
+Services: ${selectedServices.join(', ')}
+Budget: ${budget}
+Vision & Requirements:
+${formData.message || 'No additional notes.'}`;
+
+    navigator.clipboard.writeText(briefText).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+    });
+  };
+
   // ASYNCHRONOUS ZERO-REDIRECT FORM SUBMISSION:
   // User STAYS on the website, message is dispatched in background directly to Sanjay!
   const handleSubmit = async (e) => {
@@ -49,20 +69,12 @@ export default function ContactFooter({ isInquireOpen, setIsInquireOpen }) {
     setIsSending(true);
     sound.playClick();
 
-    const payload = {
-      to_name: recipientName,
-      to_email: recipientEmail,
-      from_name: formData.name,
-      reply_to: formData.email,
-      services: selectedServices.join(', '),
-      budget: budget,
-      message: formData.message,
-      subject: `New Creative Commission from ${formData.name} for Sanjay`,
-    };
+    let wasSuccessful = false;
+    let responseMsg = '';
 
     try {
       // Direct AJAX delivery to Sanjay's inbox with zero page reload
-      await fetch('https://formsubmit.co/ajax/sanjaysanjay02081@gmail.com', {
+      const res = await fetch('https://formsubmit.co/ajax/sanjaysanjay02081@gmail.com', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -74,14 +86,28 @@ export default function ContactFooter({ isInquireOpen, setIsInquireOpen }) {
           services: selectedServices.join(', '),
           budget: budget,
           message: formData.message,
-          _subject: `New Project Inquiry from ${formData.name} for Sanjay`,
+          _subject: `New Creative Commission from ${formData.name} for Sanjay`,
+          _captcha: 'false',
           _template: 'table',
+          _replyto: formData.email,
         }),
       });
+
+      const data = await res.json();
+      if (res.ok && (data.success === 'true' || data.success === true)) {
+        wasSuccessful = true;
+        responseMsg = data.message || 'Dispatched successfully to Sanjay.';
+      } else {
+        wasSuccessful = false;
+        responseMsg = data.message || 'Automated dispatch held pending activation.';
+      }
     } catch (err) {
-      console.log('Dispatch background error:', err);
+      console.warn('Dispatch network error or ad-blocker detected:', err);
+      wasSuccessful = false;
+      responseMsg = 'Network request was blocked by an ad-blocker or security filter.';
     }
 
+    setDeliveryResult({ success: wasSuccessful, message: responseMsg });
     setIsSending(false);
     sound.playSuccess();
 
@@ -275,14 +301,24 @@ Looking forward to hearing from you!`
                   </a>
 
                   <button
+                    type="button"
+                    onClick={copyBriefToClipboard}
+                    className="w-full sm:w-auto inline-flex items-center justify-center space-x-2 bg-white/10 hover:bg-white/20 text-white font-mono text-xs px-6 py-3.5 rounded-full border border-white/20 transition-all cursor-pointer"
+                  >
+                    {copied ? <Check className="w-4 h-4 text-[#00ff88]" /> : <Copy className="w-4 h-4 text-zinc-300" />}
+                    <span>{copied ? 'BRIEF COPIED!' : 'COPY BRIEF'}</span>
+                  </button>
+
+                  <button
+                    type="button"
                     onClick={() => {
                       sound.playClick();
                       setIsInquireOpen(false);
                       setFormData({ name: '', email: '', message: '' });
                     }}
-                    className="w-full sm:w-auto bg-white/10 text-white font-mono text-xs px-6 py-3.5 rounded-full hover:bg-white hover:text-black transition-colors"
+                    className="w-full sm:w-auto bg-white/5 text-zinc-400 hover:text-white font-mono text-xs px-6 py-3.5 rounded-full hover:bg-white/10 transition-colors cursor-pointer"
                   >
-                    CONTINUE BROWSING
+                    CLOSE
                   </button>
                 </div>
 
